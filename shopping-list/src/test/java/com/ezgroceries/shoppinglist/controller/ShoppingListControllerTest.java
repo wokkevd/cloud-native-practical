@@ -1,15 +1,13 @@
 package com.ezgroceries.shoppinglist.controller;
 
-import com.ezgroceries.shoppinglist.contract.CocktailResource;
+import com.ezgroceries.shoppinglist.contract.shoppinglist.CocktailResource;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.FixMethodOrder;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.hateoas.Resources;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,13 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = ShoppingListController.class, secure = false)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ShoppingListControllerTest {
 
-    private static final UUID ADDED_COCKTAIL_ID = UUID.randomUUID();
-    private static final UUID FAKE_COCKTAIL_ID = UUID.randomUUID();
+    private static final String ADDED_COCKTAIL_ID = UUID.randomUUID().toString();
+    private static final String FAKE_COCKTAIL_ID = UUID.randomUUID().toString();
     private static final String POST_LIST_NAME = "Test List";
 
+    @Autowired
+    private ShoppingListController shoppingListController;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -50,8 +49,14 @@ public class ShoppingListControllerTest {
     @MockBean
     private CocktailController cocktailController;
 
+    @Before
+    public void setUp() {
+        //TODO remove dummy data construction
+        shoppingListController.initDummyData();
+    }
+
     @Test
-    public void test1getShoppingLists() throws Exception {
+    public void getShoppingLists() throws Exception {
         mockMvc.perform(get("/shopping-lists")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -67,7 +72,7 @@ public class ShoppingListControllerTest {
     }
 
     @Test
-    public void test2getShoppingList() throws Exception {
+    public void getShoppingList() throws Exception {
         mockMvc.perform(get("/shopping-lists/eb18bb7c-61f3-4c9f-981c-55b1b8ee8915")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -82,7 +87,7 @@ public class ShoppingListControllerTest {
     }
 
     @Test
-    public void test3getNonExistingShoppingList() throws Exception {
+    public void getNonExistingShoppingList() throws Exception {
         Optional<Exception> resolvedException = Optional.ofNullable(mockMvc.perform(get("/shopping-lists/d615ec78-fe93-467b-8d26-5d26d8eab073")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -93,12 +98,12 @@ public class ShoppingListControllerTest {
     }
 
     @Test
-    public void test4addCocktailsToList() throws Exception {
+    public void addCocktailsToList() throws Exception {
         List<ShoppingListController.CocktailIdResource> cocktailIdResource = Collections.singletonList(new ShoppingListController.CocktailIdResource(ADDED_COCKTAIL_ID));
         CocktailResource mocktail = mock(CocktailResource.class);
         when(mocktail.getCocktailId()).thenReturn(ADDED_COCKTAIL_ID);
         when(mocktail.getIngredients()).thenReturn(Arrays.asList("Water", "Grenadine"));
-        when(cocktailController.getCocktails()).thenReturn(new Resources<>(Collections.singletonList(mocktail)));
+        when(cocktailController.getCocktail(ADDED_COCKTAIL_ID)).thenReturn(mocktail);
 
         mockMvc.perform(post("/shopping-lists/eb18bb7c-61f3-4c9f-981c-55b1b8ee8915/cocktails")
                 .content(objectMapper.writeValueAsString(cocktailIdResource))
@@ -124,7 +129,7 @@ public class ShoppingListControllerTest {
     }
 
     @Test
-    public void test5addCocktailsToNonExistingList() throws Exception {
+    public void addCocktailsToNonExistingList() throws Exception {
         List<ShoppingListController.CocktailIdResource> cocktailIdResource = Collections.singletonList(new ShoppingListController.CocktailIdResource(ADDED_COCKTAIL_ID));
 
         Optional<Exception> resolvedException = Optional.ofNullable(mockMvc.perform(post("/shopping-lists/d615ec78-fe93-467b-8d26-5d26d8eab073/cocktails")
@@ -138,12 +143,11 @@ public class ShoppingListControllerTest {
     }
 
     @Test
-    public void test6addNonExistingCocktailsToList() throws Exception {
-        List<ShoppingListController.CocktailIdResource> cocktailIdResource =
-                Collections.singletonList(new ShoppingListController.CocktailIdResource(FAKE_COCKTAIL_ID));
+    public void addNonExistingCocktailsToList() throws Exception {
+        List<ShoppingListController.CocktailIdResource> cocktailIdResource = Collections.singletonList(new ShoppingListController.CocktailIdResource(FAKE_COCKTAIL_ID));
         CocktailResource mocktail = mock(CocktailResource.class);
         when(mocktail.getCocktailId()).thenReturn(ADDED_COCKTAIL_ID);
-        when(cocktailController.getCocktails()).thenReturn(new Resources<>(Collections.singletonList(mocktail)));
+        when(cocktailController.getCocktail(ADDED_COCKTAIL_ID)).thenReturn(mocktail);
 
         mockMvc.perform(post("/shopping-lists/eb18bb7c-61f3-4c9f-981c-55b1b8ee8915/cocktails")
                 .content(objectMapper.writeValueAsString(cocktailIdResource))
@@ -157,18 +161,16 @@ public class ShoppingListControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.shoppingListId", is("eb18bb7c-61f3-4c9f-981c-55b1b8ee8915")))
                 .andExpect(jsonPath("$.name", is("Stephanie's birthday")))
-                .andExpect(jsonPath("$.ingredients", hasSize(7)))
+                .andExpect(jsonPath("$.ingredients", hasSize(5)))
                 .andExpect(jsonPath("$.ingredients.[0]", is("Tequila")))
                 .andExpect(jsonPath("$.ingredients.[1]", is("Triple sec")))
                 .andExpect(jsonPath("$.ingredients.[2]", is("Lime juice")))
                 .andExpect(jsonPath("$.ingredients.[3]", is("Salt")))
-                .andExpect(jsonPath("$.ingredients.[4]", is("Blue Curacao")))
-                .andExpect(jsonPath("$.ingredients.[5]", is("Water")))
-                .andExpect(jsonPath("$.ingredients.[6]", is("Grenadine")));
+                .andExpect(jsonPath("$.ingredients.[4]", is("Blue Curacao")));
     }
 
     @Test
-    public void test7createShoppingList() throws Exception {
+    public void createShoppingList() throws Exception {
         ShoppingListController.ShoppingListCreationResource postResource = new ShoppingListController.ShoppingListCreationResource(POST_LIST_NAME);
 
         mockMvc.perform(post("/shopping-lists")

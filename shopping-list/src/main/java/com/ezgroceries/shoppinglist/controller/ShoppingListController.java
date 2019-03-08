@@ -1,7 +1,7 @@
 package com.ezgroceries.shoppinglist.controller;
 
-import com.ezgroceries.shoppinglist.contract.CocktailResource;
-import com.ezgroceries.shoppinglist.contract.ShoppingListResource;
+import com.ezgroceries.shoppinglist.contract.shoppinglist.CocktailResource;
+import com.ezgroceries.shoppinglist.contract.shoppinglist.ShoppingListResource;
 import com.ezgroceries.shoppinglist.exceptions.NotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,11 +33,16 @@ public class ShoppingListController {
     private final CocktailController cocktailController;
 
     //TODO remove dummy mechanism
-    private Map<UUID, ShoppingListResource> createdShoppingLists = new HashMap<>();
+    private Map<UUID, ShoppingListResource> createdShoppingLists;
 
     public ShoppingListController(CocktailController cocktailController) {
         this.cocktailController = cocktailController;
         //TODO remove dummy data
+        initDummyData();
+    }
+
+    void initDummyData() {
+        createdShoppingLists = new HashMap<>();
         ShoppingListResource dummyShoppingList = new ShoppingListResource(UUID.fromString("eb18bb7c-61f3-4c9f-981c-55b1b8ee8915"), "Stephanie's birthday");
         dummyShoppingList.getIngredients().addAll(Arrays.asList("Tequila", "Triple sec", "Lime juice", "Salt", "Blue Curacao"));
         createdShoppingLists.put(dummyShoppingList.getShoppingListId(), dummyShoppingList);
@@ -71,17 +77,17 @@ public class ShoppingListController {
     public Resources<CocktailIdResource> addCocktailsToList(@PathVariable UUID shoppingListId,
                                                             @RequestBody List<CocktailIdResource> cocktails) {
         ShoppingListResource shoppingList = getShoppingList(shoppingListId);
-        List<CocktailResource> filteredCocktails = cocktailController.getCocktails()
-                .getContent()
-                .stream()
-                .filter(cr -> cocktails.contains(new CocktailIdResource(cr.getCocktailId())))
+        List<CocktailResource> availableCocktails = cocktails.stream()
+                .map(cir -> cocktailController.getCocktail(cir.getCocktailId()))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        shoppingList.getIngredients().addAll(filteredCocktails.stream()
+        shoppingList.getIngredients().addAll(availableCocktails.stream()
                 .map(CocktailResource::getIngredients)
                 .flatMap(Collection::stream)
-                .distinct().collect(Collectors.toList())
+                .distinct()
+                .collect(Collectors.toList())
         );
-        return new Resources<>(filteredCocktails.stream()
+        return new Resources<>(availableCocktails.stream()
                 .map(CocktailResource::getCocktailId)
                 .map(CocktailIdResource::new)
                 .collect(Collectors.toList()));
@@ -104,6 +110,6 @@ public class ShoppingListController {
     @NoArgsConstructor
     static class CocktailIdResource {
 
-        private UUID cocktailId;
+        private String cocktailId;
     }
 }

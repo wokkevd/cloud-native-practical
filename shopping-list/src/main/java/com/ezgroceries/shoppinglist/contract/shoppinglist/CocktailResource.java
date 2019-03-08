@@ -1,4 +1,4 @@
-package com.ezgroceries.shoppinglist.contract;
+package com.ezgroceries.shoppinglist.contract.shoppinglist;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -15,7 +14,7 @@ import java.util.UUID;
 @EqualsAndHashCode(of = "cocktailId")
 public class CocktailResource {
 
-    private UUID cocktailId;
+    private String cocktailId;
     private String name;
     private String glass;
     private String instructions;

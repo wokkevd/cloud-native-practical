@@ -1,4 +1,4 @@
-package com.ezgroceries.shoppinglist.contract;
+package com.ezgroceries.shoppinglist.contract.shoppinglist;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
