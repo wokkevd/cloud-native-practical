@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+    <cocktail id="uuid'a1fd2e4e-4f49-5d7c-adce-37dd0d8395e7'"
+              id_drink="123456" name="Margerita" glass="Cocktail Glass"
+              instructions="Rub the rim of the glass with the lime slice to make the salt stick to it. Take care to moisten.."
+              url="https://www.thecocktaildb.com/images/media/drink/wpxpvu1439905379.jpg" ingredients="Tequila,Triple sec,Lime juice,Salt"/>
+
+    <cocktail id="uuid'0eb9f706-964f-5089-a4a4-38d0cbba61f9'"
+              id_drink="654321" name="Blue Margerita" glass="Cocktail Glass"
+              instructions="Rub rim of cocktail glass with lime juice. Dip rim in coarse salt.."
+              url="https://www.thecocktaildb.com/images/media/drink/qtvvyq1439905913.jpg" ingredients="Tequila,Blue Curacao,Lime juice,Salt"/>
+</dataset>

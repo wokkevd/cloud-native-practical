@@ -1,7 +1,7 @@
 package com.ezgroceries.shoppinglist.factory;
 
-import com.ezgroceries.shoppinglist.contract.cocktaildb.CocktailDBDrinkResource;
 import com.ezgroceries.shoppinglist.contract.shoppinglist.CocktailResource;
+import com.ezgroceries.shoppinglist.domain.CocktailEntity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,19 +44,14 @@ public class CocktailResourceFactoryTest {
 
     @Test
     public void create() {
-        CocktailDBDrinkResource drinkResource1 = new CocktailDBDrinkResource(
-                DRINK_1_ID,
-                DRINK_1_NAME,
-                DRINK_1_GLASS,
-                DRINK_1_INSTRUCTIONS,
-                DRINK_1_DRINK_THUMB,
-                DRINK_1_INGREDIENT_1,
-                DRINK_1_INGREDIENT_2,
-                DRINK_1_INGREDIENT_3,
-                DRINK_1_INGREDIENT_4,
-                null,
-                null,
-                null);
+        CocktailEntity drinkResource1 = CocktailEntity.builder()
+                .drinkId(DRINK_1_ID)
+                .name(DRINK_1_NAME)
+                .glass(DRINK_1_GLASS)
+                .instructions(DRINK_1_INSTRUCTIONS)
+                .url(DRINK_1_DRINK_THUMB)
+                .ingredients(Arrays.asList(DRINK_1_INGREDIENT_1, DRINK_1_INGREDIENT_2, DRINK_1_INGREDIENT_3, DRINK_1_INGREDIENT_4))
+                .build();
 
         CocktailResource cocktailResource = cocktailResourceFactory.create(drinkResource1);
         assertThat(cocktailResource).isNotNull();
@@ -70,32 +65,23 @@ public class CocktailResourceFactoryTest {
 
     @Test
     public void createMultiple() {
-        CocktailDBDrinkResource drinkResource1 = new CocktailDBDrinkResource(
-                DRINK_1_ID,
-                DRINK_1_NAME,
-                DRINK_1_GLASS,
-                DRINK_1_INSTRUCTIONS,
-                DRINK_1_DRINK_THUMB,
-                DRINK_1_INGREDIENT_1,
-                DRINK_1_INGREDIENT_2,
-                DRINK_1_INGREDIENT_3,
-                DRINK_1_INGREDIENT_4,
-                null,
-                null,
-                null);
-        CocktailDBDrinkResource drinkResource2 = new CocktailDBDrinkResource(
-                DRINK_2_ID,
-                DRINK_2_NAME,
-                DRINK_2_GLASS,
-                DRINK_2_INSTRUCTIONS,
-                DRINK_2_DRINK_THUMB,
-                DRINK_2_INGREDIENT_1,
-                DRINK_2_INGREDIENT_2,
-                DRINK_2_INGREDIENT_3,
-                DRINK_2_INGREDIENT_4,
-                DRINK_2_INGREDIENT_5,
-                DRINK_2_INGREDIENT_6,
-                DRINK_2_INGREDIENT_7);
+        CocktailEntity drinkResource1 = CocktailEntity.builder()
+                .drinkId(DRINK_1_ID)
+                .name(DRINK_1_NAME)
+                .glass(DRINK_1_GLASS)
+                .instructions(DRINK_1_INSTRUCTIONS)
+                .url(DRINK_1_DRINK_THUMB)
+                .ingredients(Arrays.asList(DRINK_1_INGREDIENT_1, DRINK_1_INGREDIENT_2, DRINK_1_INGREDIENT_3, DRINK_1_INGREDIENT_4))
+                .build();
+        CocktailEntity drinkResource2 = CocktailEntity.builder()
+                .drinkId(DRINK_2_ID)
+                .name(DRINK_2_NAME)
+                .glass(DRINK_2_GLASS)
+                .instructions(DRINK_2_INSTRUCTIONS)
+                .url(DRINK_2_DRINK_THUMB)
+                .ingredients(Arrays.asList(DRINK_2_INGREDIENT_1, DRINK_2_INGREDIENT_2, DRINK_2_INGREDIENT_3, DRINK_2_INGREDIENT_4,
+                        DRINK_2_INGREDIENT_5, DRINK_2_INGREDIENT_6, DRINK_2_INGREDIENT_7))
+                .build();
 
         List<CocktailResource> cocktailResource = cocktailResourceFactory.create(Arrays.asList(drinkResource1, drinkResource2));
         assertThat(cocktailResource).hasSize(2);
