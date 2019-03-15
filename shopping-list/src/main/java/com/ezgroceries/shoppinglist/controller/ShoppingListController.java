@@ -1,12 +1,10 @@
 package com.ezgroceries.shoppinglist.controller;
 
 import com.ezgroceries.shoppinglist.contract.shoppinglist.ShoppingListResource;
-import com.ezgroceries.shoppinglist.exceptions.NotFoundException;
 import com.ezgroceries.shoppinglist.service.ShoppingListService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,12 +36,7 @@ public class ShoppingListController {
 
     @GetMapping("/{shoppingListId}")
     public ShoppingListResource getShoppingList(@PathVariable UUID shoppingListId) {
-        ShoppingListResource shoppingList = shoppingListService.getShoppingList(shoppingListId);
-        if (shoppingList != null) {
-            return shoppingList;
-        } else {
-            throw new NotFoundException("Shopping list with id %s not found", shoppingListId.toString());
-        }
+        return shoppingListService.getShoppingList(shoppingListId);
     }
 
     @PostMapping
@@ -57,15 +50,12 @@ public class ShoppingListController {
     }
 
     @PostMapping("/{shoppingListId}/cocktails")
-    public Resources<CocktailIdResource> addCocktailsToList(@PathVariable UUID shoppingListId,
-                                                            @RequestBody List<CocktailIdResource> cocktails) {
+    public List<CocktailIdResource> addCocktailsToList(@PathVariable UUID shoppingListId,
+                                                       @RequestBody List<CocktailIdResource> cocktails) {
         List<UUID> cocktailsIds = cocktails.stream().map(CocktailIdResource::getCocktailId).collect(Collectors.toList());
-        List<UUID> addedCocktails = shoppingListService.addCocktails(shoppingListId, cocktailsIds);
-        if (addedCocktails != null) {
-            return new Resources<>(addedCocktails.stream().map(CocktailIdResource::new).collect(Collectors.toList()));
-        } else {
-            throw new NotFoundException("Shopping list with id %s not found", shoppingListId.toString());
-        }
+        return shoppingListService.addCocktails(shoppingListId, cocktailsIds).stream()
+                .map(CocktailIdResource::new)
+                .collect(Collectors.toList());
     }
 
     @Data
