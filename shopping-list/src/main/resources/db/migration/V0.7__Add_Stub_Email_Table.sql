@@ -1,0 +1,7 @@
+create table STUB_EMAIL
+(
+  ID           UUID PRIMARY KEY,
+  EMAIL_TEXT   TEXT,
+  TO_ADDRESS   TEXT,
+  CREATED_DATE TIMESTAMP
+)
