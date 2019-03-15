@@ -16,13 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -113,13 +111,11 @@ public class ShoppingListControllerTest {
 
     @Test
     public void getNonExistingShoppingList() throws Exception {
-        Optional<Exception> resolvedException = Optional.ofNullable(mockMvc.perform(get("/shopping-lists/" + SHOPPING_LIST_ID_X.toString())
+        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_X)).thenThrow(new NotFoundException("Test"));
+        mockMvc.perform(get("/shopping-lists/" + SHOPPING_LIST_ID_X.toString())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andReturn().getResolvedException());
-
-        assertThat(resolvedException).isPresent();
-        resolvedException.ifPresent(e -> assertThat(e.getMessage()).isEqualTo("Shopping list with id " + SHOPPING_LIST_ID_X.toString() + " not found"));
+                .andReturn().getResolvedException();
     }
 
     @Test
@@ -130,22 +126,19 @@ public class ShoppingListControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 // THEN
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.cocktailIdResourceList", hasSize(1)))
-                .andExpect(jsonPath("$._embedded.cocktailIdResourceList.[0].id", is(ADDED_COCKTAIL_ID.toString())));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].cocktailId", is(ADDED_COCKTAIL_ID.toString())));
     }
 
     @Test
     public void addCocktailsToNonExistingList() throws Exception {
+        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_X)).thenThrow(new NotFoundException("Test"));
         List<ShoppingListController.CocktailIdResource> cocktailIdResource = singletonList(new ShoppingListController.CocktailIdResource(ADDED_COCKTAIL_ID));
-        Optional<Exception> resolvedException = Optional.ofNullable(
-                mockMvc.perform(post("/shopping-lists/" + SHOPPING_LIST_ID_X.toString() + "/cocktails")
-                        .content(objectMapper.writeValueAsString(cocktailIdResource))
-                        .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isNotFound())
-                        .andReturn().getResolvedException());
-
-        assertThat(resolvedException).isPresent();
-        resolvedException.ifPresent(e -> assertThat(e.getMessage()).isEqualTo("Shopping list with id " + SHOPPING_LIST_ID_X.toString() + " not found"));
+        mockMvc.perform(post("/shopping-lists/" + SHOPPING_LIST_ID_X.toString() + "/cocktails")
+                .content(objectMapper.writeValueAsString(cocktailIdResource))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn().getResolvedException();
     }
 
     @Test
@@ -156,7 +149,7 @@ public class ShoppingListControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 // THEN
                 .andExpect(status().isOk())
-                .andExpect(content().string("{}"));
+                .andExpect(content().string("[]"));
     }
 
     @Test
