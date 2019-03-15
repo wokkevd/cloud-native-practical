@@ -4,6 +4,7 @@ import com.ezgroceries.shoppinglist.client.CocktailDBClient;
 import com.ezgroceries.shoppinglist.contract.cocktaildb.CocktailDBDrinkResource;
 import com.ezgroceries.shoppinglist.contract.cocktaildb.CocktailDBResponseResource;
 import com.ezgroceries.shoppinglist.contract.shoppinglist.CocktailResource;
+import com.ezgroceries.shoppinglist.exceptions.NotFoundException;
 import com.ezgroceries.shoppinglist.service.CocktailService;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,10 +21,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
@@ -174,12 +173,10 @@ public class CocktailControllerTest {
 
     @Test
     public void getNonExistingCocktail() throws Exception {
-        Optional<Exception> resolvedException = Optional.ofNullable(mockMvc.perform(get("/cocktails/" + UNKNOWN_COCKTAIL_ID.toString())
+        when(cocktailService.findById(UNKNOWN_COCKTAIL_ID)).thenThrow(new NotFoundException("Test"));
+        mockMvc.perform(get("/cocktails/" + UNKNOWN_COCKTAIL_ID.toString())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andReturn().getResolvedException());
-
-        assertThat(resolvedException).isPresent();
-        resolvedException.ifPresent(e -> assertThat(e.getMessage()).isEqualTo("Cocktail with id " + UNKNOWN_COCKTAIL_ID.toString() + " not found"));
+                .andReturn().getResolvedException();
     }
 }
