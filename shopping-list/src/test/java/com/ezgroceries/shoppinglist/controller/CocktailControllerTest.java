@@ -155,7 +155,7 @@ public class CocktailControllerTest {
 
     @Test
     public void getCocktail() throws Exception {
-        when(cocktailService.findById(EXISTING_COCKTAIL_ID_1)).thenReturn(Optional.of(cocktailResource1));
+        when(cocktailService.findById(EXISTING_COCKTAIL_ID_1)).thenReturn(cocktailResource1);
         mockMvc.perform(get("/cocktails/" + EXISTING_COCKTAIL_ID_1)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

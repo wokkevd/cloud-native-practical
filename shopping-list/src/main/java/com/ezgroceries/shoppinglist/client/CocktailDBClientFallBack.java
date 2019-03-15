@@ -15,6 +15,7 @@ public class CocktailDBClientFallBack implements CocktailDBClient {
 
     @Override
     public ResponseEntity<CocktailDBResponseResource> getCocktailBySearchTerm(String searchTerm) {
+        //TODO implement actual logic
         if (cause instanceof FeignException && ((FeignException) cause).status() != HttpStatus.OK.value()) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
         }

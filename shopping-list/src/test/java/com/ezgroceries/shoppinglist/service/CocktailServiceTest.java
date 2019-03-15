@@ -139,14 +139,14 @@ public class CocktailServiceTest {
                 .ingredients(ingredients)
                 .build();
         when(cocktailRepository.findById(EXISTING_COCKTAIL_ID_1)).thenReturn(Optional.of(cocktailEntity1));
-        Optional<CocktailResource> foundCocktail = cocktailService.findById(EXISTING_COCKTAIL_ID_1);
-        assertThat(foundCocktail).isPresent();
-        assertThat(foundCocktail.get().getId()).isEqualTo(EXISTING_COCKTAIL_ID_1);
-        assertThat(foundCocktail.get().getCocktailId()).isEqualTo(DRINK_ID_1);
-        assertThat(foundCocktail.get().getName()).isEqualTo(DRINK_NAME_1);
-        assertThat(foundCocktail.get().getGlass()).isEqualTo(GLASS);
-        assertThat(foundCocktail.get().getInstructions()).isEqualTo(DRINK_INSTRUCTIONS_1);
-        assertThat(foundCocktail.get().getImage()).isEqualTo(DRINK_URL_1);
-        assertThat(foundCocktail.get().getIngredients()).isEqualTo(ingredients);
+        CocktailResource foundCocktail = cocktailService.findById(EXISTING_COCKTAIL_ID_1);
+        assertThat(foundCocktail).isNotNull();
+        assertThat(foundCocktail.getId()).isEqualTo(EXISTING_COCKTAIL_ID_1);
+        assertThat(foundCocktail.getCocktailId()).isEqualTo(DRINK_ID_1);
+        assertThat(foundCocktail.getName()).isEqualTo(DRINK_NAME_1);
+        assertThat(foundCocktail.getGlass()).isEqualTo(GLASS);
+        assertThat(foundCocktail.getInstructions()).isEqualTo(DRINK_INSTRUCTIONS_1);
+        assertThat(foundCocktail.getImage()).isEqualTo(DRINK_URL_1);
+        assertThat(foundCocktail.getIngredients()).isEqualTo(ingredients);
     }
 }
