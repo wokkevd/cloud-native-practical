@@ -16,21 +16,20 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
 
     @Override
     public String convertToDatabaseColumn(List<String> list) {
-        if (!CollectionUtils.isEmpty(list)) {
-            return list.stream()
-                    .filter(s -> !StringUtils.isEmpty(s))
-                    .distinct()
-                    .collect(Collectors.joining(","));
-        } else {
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         }
+        return list.stream()
+                .filter(s -> !StringUtils.isEmpty(s))
+                .distinct()
+                .collect(Collectors.joining(","));
     }
 
     @Override
     public List<String> convertToEntityAttribute(String joined) {
-        if (!StringUtils.isEmpty(joined)) {
-            return Lists.newArrayList(Splitter.on(",").split(joined));
+        if (StringUtils.isEmpty(joined)) {
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
+        return Lists.newArrayList(Splitter.on(",").split(joined));
     }
 }
