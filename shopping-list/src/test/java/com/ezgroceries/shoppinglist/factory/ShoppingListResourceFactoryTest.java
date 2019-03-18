@@ -22,6 +22,8 @@ public class ShoppingListResourceFactoryTest {
 
     private static final UUID SHOPPING_LIST_ID_1 = UUID.randomUUID();
     private static final UUID SHOPPING_LIST_ID_2 = UUID.randomUUID();
+    private static final UUID COCKTAIL_ID_1 = UUID.randomUUID();
+    private static final UUID COCKTAIL_ID_2 = UUID.randomUUID();
     private static final String SHOPPING_LIST_NAME_1 = "Stephanie's birthday";
     private static final String SHOPPING_LIST_NAME_2 = "Nick's birthday";
     private static final List<String> INGREDIENTS_1 = Arrays.asList("Tequila", "Triple sec", "Lime juice", "Salt", "Blue Curacao");
@@ -47,11 +49,13 @@ public class ShoppingListResourceFactoryTest {
     @Test
     public void createMultiple() {
         CocktailEntity cocktailEntity1 = new CocktailEntity();
+        cocktailEntity1.setId(COCKTAIL_ID_1);
         cocktailEntity1.setIngredients(INGREDIENTS_1);
         ShoppingListEntity shoppingListEntity1 = new ShoppingListEntity(SHOPPING_LIST_NAME_1);
         shoppingListEntity1.setId(SHOPPING_LIST_ID_1);
         shoppingListEntity1.setCocktails(Sets.newHashSet(cocktailEntity1));
         CocktailEntity cocktailEntity2 = new CocktailEntity();
+        cocktailEntity2.setId(COCKTAIL_ID_2);
         cocktailEntity2.setIngredients(INGREDIENTS_2);
         ShoppingListEntity shoppingListEntity2 = new ShoppingListEntity(SHOPPING_LIST_NAME_2);
         shoppingListEntity2.setId(SHOPPING_LIST_ID_2);

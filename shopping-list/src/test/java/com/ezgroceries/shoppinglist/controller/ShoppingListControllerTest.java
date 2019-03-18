@@ -2,6 +2,7 @@ package com.ezgroceries.shoppinglist.controller;
 
 import com.ezgroceries.shoppinglist.contract.shoppinglist.ShoppingListResource;
 import com.ezgroceries.shoppinglist.exceptions.NotFoundException;
+import com.ezgroceries.shoppinglist.security.SecurityManager;
 import com.ezgroceries.shoppinglist.service.ShoppingListService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
@@ -36,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(value = ShoppingListController.class, secure = false)
 public class ShoppingListControllerTest {
 
+    private static final UUID USER_ID = UUID.randomUUID();
     private static final UUID ADDED_COCKTAIL_ID = UUID.randomUUID();
     private static final UUID FAKE_COCKTAIL_ID = UUID.randomUUID();
     private static final String POST_LIST_NAME = "Test List";
@@ -54,6 +56,8 @@ public class ShoppingListControllerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private ShoppingListService shoppingListService;
+    @MockBean
+    private SecurityManager securityTokenManager;
 
     @Before
     public void setUp() {
@@ -62,19 +66,19 @@ public class ShoppingListControllerTest {
         ShoppingListResource shoppingList2 = new ShoppingListResource(SHOPPING_LIST_ID_2, SHOPPING_LIST_NAME_2);
         shoppingList2.setIngredients(INGREDIENTS_2);
         ShoppingListResource shoppingListPosted = new ShoppingListResource(SHOPPING_LIST_ID_POSTED, POST_LIST_NAME);
-        when(shoppingListService.getAllShoppingLists()).thenReturn(asList(shoppingList1, shoppingList2));
-        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_1)).thenReturn(shoppingList1);
-        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_2)).thenReturn(shoppingList2);
-        when(shoppingListService.addCocktails(SHOPPING_LIST_ID_1, singletonList(ADDED_COCKTAIL_ID))).thenReturn(singletonList(ADDED_COCKTAIL_ID));
-        when(shoppingListService.addCocktails(SHOPPING_LIST_ID_1, singletonList(FAKE_COCKTAIL_ID))).thenReturn(emptyList());
-        when(shoppingListService.addCocktails(eq(SHOPPING_LIST_ID_X), any())).thenThrow(new NotFoundException("Shopping list with id " + SHOPPING_LIST_ID_X.toString() + " not found"));
-        when(shoppingListService.createShoppingList(POST_LIST_NAME)).thenReturn(shoppingListPosted);
+        when(shoppingListService.getAllShoppingLists(USER_ID)).thenReturn(asList(shoppingList1, shoppingList2));
+        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_1, USER_ID)).thenReturn(shoppingList1);
+        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_2, USER_ID)).thenReturn(shoppingList2);
+        when(shoppingListService.addCocktails(SHOPPING_LIST_ID_1, USER_ID, singletonList(ADDED_COCKTAIL_ID))).thenReturn(singletonList(ADDED_COCKTAIL_ID));
+        when(shoppingListService.addCocktails(SHOPPING_LIST_ID_1, USER_ID, singletonList(FAKE_COCKTAIL_ID))).thenReturn(emptyList());
+        when(shoppingListService.addCocktails(eq(SHOPPING_LIST_ID_X), eq(USER_ID), any())).thenThrow(new NotFoundException("Shopping list with id " + SHOPPING_LIST_ID_X.toString() + " not found"));
+        when(shoppingListService.createShoppingList(POST_LIST_NAME, USER_ID)).thenReturn(shoppingListPosted);
     }
 
     @Test
     public void getShoppingLists() throws Exception {
         setUp();
-        mockMvc.perform(get("/shopping-lists")
+        mockMvc.perform(get("/users/" + USER_ID + "/shopping-lists")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -96,7 +100,7 @@ public class ShoppingListControllerTest {
 
     @Test
     public void getShoppingList() throws Exception {
-        mockMvc.perform(get("/shopping-lists/" + SHOPPING_LIST_ID_1.toString())
+        mockMvc.perform(get("/users/" + USER_ID + "/shopping-lists/" + SHOPPING_LIST_ID_1.toString())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.shoppingListId", is(SHOPPING_LIST_ID_1.toString())))
@@ -111,8 +115,8 @@ public class ShoppingListControllerTest {
 
     @Test
     public void getNonExistingShoppingList() throws Exception {
-        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_X)).thenThrow(new NotFoundException("Test"));
-        mockMvc.perform(get("/shopping-lists/" + SHOPPING_LIST_ID_X.toString())
+        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_X, USER_ID)).thenThrow(new NotFoundException("Test"));
+        mockMvc.perform(get("/users/" + USER_ID + "/shopping-lists/" + SHOPPING_LIST_ID_X.toString())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn().getResolvedException();
@@ -121,7 +125,7 @@ public class ShoppingListControllerTest {
     @Test
     public void addCocktailsToList() throws Exception {
         List<ShoppingListController.CocktailIdResource> cocktailIdResource = Collections.singletonList(new ShoppingListController.CocktailIdResource(ADDED_COCKTAIL_ID));
-        mockMvc.perform(post("/shopping-lists/" + SHOPPING_LIST_ID_1.toString() + "/cocktails")
+        mockMvc.perform(post("/users/" + USER_ID + "/shopping-lists/" + SHOPPING_LIST_ID_1.toString() + "/cocktails")
                 .content(objectMapper.writeValueAsString(cocktailIdResource))
                 .contentType(MediaType.APPLICATION_JSON))
                 // THEN
@@ -132,9 +136,9 @@ public class ShoppingListControllerTest {
 
     @Test
     public void addCocktailsToNonExistingList() throws Exception {
-        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_X)).thenThrow(new NotFoundException("Test"));
+        when(shoppingListService.getShoppingList(SHOPPING_LIST_ID_X, USER_ID)).thenThrow(new NotFoundException("Test"));
         List<ShoppingListController.CocktailIdResource> cocktailIdResource = singletonList(new ShoppingListController.CocktailIdResource(ADDED_COCKTAIL_ID));
-        mockMvc.perform(post("/shopping-lists/" + SHOPPING_LIST_ID_X.toString() + "/cocktails")
+        mockMvc.perform(post("/users/" + USER_ID + "/shopping-lists/" + SHOPPING_LIST_ID_X.toString() + "/cocktails")
                 .content(objectMapper.writeValueAsString(cocktailIdResource))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -144,7 +148,7 @@ public class ShoppingListControllerTest {
     @Test
     public void addNonExistingCocktailsToList() throws Exception {
         List<ShoppingListController.CocktailIdResource> cocktailIdResource = singletonList(new ShoppingListController.CocktailIdResource(FAKE_COCKTAIL_ID));
-        mockMvc.perform(post("/shopping-lists/" + SHOPPING_LIST_ID_1.toString() + "/cocktails")
+        mockMvc.perform(post("/users/" + USER_ID + "/shopping-lists/" + SHOPPING_LIST_ID_1.toString() + "/cocktails")
                 .content(objectMapper.writeValueAsString(cocktailIdResource))
                 .contentType(MediaType.APPLICATION_JSON))
                 // THEN
@@ -155,7 +159,7 @@ public class ShoppingListControllerTest {
     @Test
     public void createShoppingList() throws Exception {
         ShoppingListController.ShoppingListCreationResource postResource = new ShoppingListController.ShoppingListCreationResource(POST_LIST_NAME);
-        mockMvc.perform(post("/shopping-lists")
+        mockMvc.perform(post("/users/" + USER_ID + "/shopping-lists")
                 .content(objectMapper.writeValueAsString(postResource))
                 .contentType(MediaType.APPLICATION_JSON))
                 // THEN

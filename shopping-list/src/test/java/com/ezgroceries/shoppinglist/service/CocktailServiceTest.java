@@ -55,7 +55,6 @@ public class CocktailServiceTest {
     public void persistCocktails() {
         List<String> ingredients1 = Arrays.asList("Tequila", "Triple sec", "Lime juice", "Salt");
         CocktailEntity cocktailEntity1 = CocktailEntity.builder()
-                .id(EXISTING_COCKTAIL_ID_1)
                 .drinkId(DRINK_ID_1)
                 .name(DRINK_NAME_1)
                 .glass(GLASS)
@@ -63,9 +62,9 @@ public class CocktailServiceTest {
                 .url(DRINK_URL_1)
                 .ingredients(ingredients1)
                 .build();
+        cocktailEntity1.setId(EXISTING_COCKTAIL_ID_1);
         List<String> ingredients2 = Arrays.asList("Tequila", "Blue Curacao", "Lime juice", "Salt");
         CocktailEntity cocktailEntity2 = CocktailEntity.builder()
-                .id(EXISTING_COCKTAIL_ID_2)
                 .drinkId(DRINK_ID_2)
                 .name(DRINK_NAME_2)
                 .glass(GLASS)
@@ -73,6 +72,7 @@ public class CocktailServiceTest {
                 .url(DRINK_URL_2)
                 .ingredients(ingredients2)
                 .build();
+        cocktailEntity2.setId(EXISTING_COCKTAIL_ID_2);
         CocktailDBDrinkResource drinkResource1 = new CocktailDBDrinkResource(
                 DRINK_ID_1,
                 DRINK_NAME_1,
@@ -130,7 +130,6 @@ public class CocktailServiceTest {
     public void findById() {
         List<String> ingredients = Arrays.asList("Tequila", "Triple sec", "Lime juice", "Salt");
         CocktailEntity cocktailEntity1 = CocktailEntity.builder()
-                .id(EXISTING_COCKTAIL_ID_1)
                 .drinkId(DRINK_ID_1)
                 .name(DRINK_NAME_1)
                 .glass(GLASS)
@@ -138,6 +137,7 @@ public class CocktailServiceTest {
                 .url(DRINK_URL_1)
                 .ingredients(ingredients)
                 .build();
+        cocktailEntity1.setId(EXISTING_COCKTAIL_ID_1);
         when(cocktailRepository.findById(EXISTING_COCKTAIL_ID_1)).thenReturn(Optional.of(cocktailEntity1));
         CocktailResource foundCocktail = cocktailService.findById(EXISTING_COCKTAIL_ID_1);
         assertThat(foundCocktail).isNotNull();

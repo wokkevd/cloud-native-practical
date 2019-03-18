@@ -1,2 +1,2 @@
 alter table SHOPPING_LIST
-  add column USER_ID UUID REFERENCES SHOP_USER (ID)
+  add column USER_ID UUID

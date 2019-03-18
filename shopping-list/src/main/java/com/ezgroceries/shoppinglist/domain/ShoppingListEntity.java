@@ -31,7 +31,7 @@ public class ShoppingListEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private ShopUserEntity owner;
+    private ShopUserEntity user;
 
     public ShoppingListEntity(String name) {
         this.name = name;

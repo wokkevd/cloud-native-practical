@@ -2,11 +2,14 @@ package com.ezgroceries.shoppinglist.service;
 
 import com.ezgroceries.shoppinglist.contract.shoppinglist.ShoppingListResource;
 import com.ezgroceries.shoppinglist.domain.CocktailEntity;
+import com.ezgroceries.shoppinglist.domain.ShopUserEntity;
 import com.ezgroceries.shoppinglist.domain.ShoppingListEntity;
+import com.ezgroceries.shoppinglist.exceptions.BadRequestException;
+import com.ezgroceries.shoppinglist.exceptions.NotFoundException;
 import com.ezgroceries.shoppinglist.factory.ShoppingListResourceFactory;
 import com.ezgroceries.shoppinglist.repository.CocktailRepository;
+import com.ezgroceries.shoppinglist.repository.ShopUserRepository;
 import com.ezgroceries.shoppinglist.repository.ShoppingListRepository;
-import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,13 +34,14 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 public class ShoppingListServiceTest {
 
+    private static final UUID USER_ID_1 = UUID.randomUUID();
+    private static final UUID USER_ID_X = UUID.randomUUID();
     private static final UUID SHOPPING_LIST_ID_1 = UUID.randomUUID();
     private static final UUID SHOPPING_LIST_ID_2 = UUID.randomUUID();
     private static final UUID SHOPPING_LIST_ID_X = UUID.randomUUID();
     private static final String SHOPPING_LIST_NAME_1 = "Stephanie's birthday";
     private static final String SHOPPING_LIST_NAME_2 = "Nick's birthday";
     private static final String CREATE_LIST_NAME = "Test List";
-
     private static final UUID FAKE_COCKTAIL_ID = UUID.randomUUID();
     private static final UUID EXISTING_COCKTAIL_ID_1 = UUID.randomUUID();
     private static final String DRINK_ID_1 = "123";
@@ -58,13 +63,14 @@ public class ShoppingListServiceTest {
     private ShoppingListRepository shoppingListRepository;
     @MockBean
     private CocktailRepository cocktailRepository;
+    @MockBean
+    private ShopUserRepository shopUserRepository;
     @SpyBean
     private ShoppingListResourceFactory shoppingListResourceFactory;
 
     @Before
     public void setUp() {
         CocktailEntity cocktailEntity1 = CocktailEntity.builder()
-                .id(EXISTING_COCKTAIL_ID_1)
                 .drinkId(DRINK_ID_1)
                 .name(DRINK_NAME_1)
                 .glass(GLASS)
@@ -72,8 +78,8 @@ public class ShoppingListServiceTest {
                 .url(DRINK_URL_1)
                 .ingredients(INGREDIENTS_1)
                 .build();
+        cocktailEntity1.setId(EXISTING_COCKTAIL_ID_1);
         CocktailEntity cocktailEntity2 = CocktailEntity.builder()
-                .id(EXISTING_COCKTAIL_ID_2)
                 .drinkId(DRINK_ID_2)
                 .name(DRINK_NAME_2)
                 .glass(GLASS)
@@ -81,50 +87,77 @@ public class ShoppingListServiceTest {
                 .url(DRINK_URL_2)
                 .ingredients(INGREDIENTS_2)
                 .build();
-        ShoppingListEntity shoppingListEntity1 = new ShoppingListEntity(SHOPPING_LIST_ID_1, SHOPPING_LIST_NAME_1, Sets.newHashSet(cocktailEntity2));
-        ShoppingListEntity shoppingListEntity2 = new ShoppingListEntity(SHOPPING_LIST_ID_2, SHOPPING_LIST_NAME_2, Sets.newHashSet(cocktailEntity1, cocktailEntity2));
+        ShopUserEntity shopUserEntity = new ShopUserEntity();
+        shopUserEntity.setId(USER_ID_1);
+        ShoppingListEntity shoppingListEntity1 = new ShoppingListEntity(SHOPPING_LIST_NAME_1, newHashSet(cocktailEntity2), shopUserEntity);
+        shoppingListEntity1.setId(SHOPPING_LIST_ID_1);
+        ShoppingListEntity shoppingListEntity2 = new ShoppingListEntity(SHOPPING_LIST_NAME_2, newHashSet(cocktailEntity1, cocktailEntity2), shopUserEntity);
+        shoppingListEntity2.setId(SHOPPING_LIST_ID_2);
         when(cocktailRepository.findById(EXISTING_COCKTAIL_ID_1)).thenReturn(Optional.of(cocktailEntity1));
-        when(shoppingListRepository.findById(SHOPPING_LIST_ID_1)).thenReturn(Optional.of(shoppingListEntity1));
-        when(shoppingListRepository.findAll()).thenReturn(Arrays.asList(shoppingListEntity1, shoppingListEntity2));
+        when(shoppingListRepository.findByIdAndUserId(SHOPPING_LIST_ID_1, USER_ID_1)).thenReturn(Optional.of(shoppingListEntity1));
+        when(shoppingListRepository.findByUserId(USER_ID_1)).thenReturn(Arrays.asList(shoppingListEntity1, shoppingListEntity2));
+        when(shopUserRepository.findById(USER_ID_1)).thenReturn(Optional.of(shopUserEntity));
+        when(shopUserRepository.findById(USER_ID_X)).thenReturn(Optional.empty());
     }
 
     @Test
     public void createShoppingList() {
         ShoppingListEntity createdShoppingList = new ShoppingListEntity(CREATE_LIST_NAME);
         when(shoppingListRepository.save(any())).thenReturn(createdShoppingList);
-        ShoppingListResource shoppingList = shoppingListService.createShoppingList(CREATE_LIST_NAME);
+        ShoppingListResource shoppingList = shoppingListService.createShoppingList(CREATE_LIST_NAME, USER_ID_1);
         assertThat(shoppingList).isNotNull();
         assertThat(shoppingList.getShoppingListId()).isEqualTo(createdShoppingList.getId());
         assertThat(shoppingList.getName()).isEqualTo(CREATE_LIST_NAME);
         assertThat(shoppingList.getIngredients()).isEmpty();
     }
 
+    @Test(expected = BadRequestException.class)
+    public void createShoppingListNonExistingUser() {
+        ShoppingListEntity createdShoppingList = new ShoppingListEntity(CREATE_LIST_NAME);
+        when(shoppingListRepository.save(any())).thenReturn(createdShoppingList);
+        shoppingListService.createShoppingList(CREATE_LIST_NAME, USER_ID_X);
+    }
+
     @Test
     public void addCocktails() {
-        List<UUID> addedCocktails = shoppingListService.addCocktails(SHOPPING_LIST_ID_1, Arrays.asList(EXISTING_COCKTAIL_ID_1,
+        List<UUID> addedCocktails = shoppingListService.addCocktails(SHOPPING_LIST_ID_1, USER_ID_1, Arrays.asList(EXISTING_COCKTAIL_ID_1,
                 EXISTING_COCKTAIL_ID_2, FAKE_COCKTAIL_ID));
         assertThat(addedCocktails).hasSize(1);
         assertThat(addedCocktails).containsExactly(EXISTING_COCKTAIL_ID_1);
     }
 
+    @Test(expected = NotFoundException.class)
+    public void addCocktailsNonExistingShoppingList() {
+        shoppingListService.addCocktails(SHOPPING_LIST_ID_X, USER_ID_1, Arrays.asList(EXISTING_COCKTAIL_ID_1, EXISTING_COCKTAIL_ID_2, FAKE_COCKTAIL_ID));
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void addCocktailsNonExistingUser() {
+        shoppingListService.addCocktails(SHOPPING_LIST_ID_1, USER_ID_X, Arrays.asList(EXISTING_COCKTAIL_ID_1, EXISTING_COCKTAIL_ID_2, FAKE_COCKTAIL_ID));
+    }
+
     @Test
     public void getShoppingList() {
-        ShoppingListResource shoppingList = shoppingListService.getShoppingList(SHOPPING_LIST_ID_1);
+        ShoppingListResource shoppingList = shoppingListService.getShoppingList(SHOPPING_LIST_ID_1, USER_ID_1);
         assertThat(shoppingList).isNotNull();
         assertThat(shoppingList.getShoppingListId()).isEqualTo(SHOPPING_LIST_ID_1);
         assertThat(shoppingList.getName()).isEqualTo(SHOPPING_LIST_NAME_1);
         assertThat(shoppingList.getIngredients()).isEqualTo(INGREDIENTS_2);
     }
 
-    @Test
+    @Test(expected = NotFoundException.class)
     public void getNonExistingShoppingList() {
-        ShoppingListResource shoppingList = shoppingListService.getShoppingList(SHOPPING_LIST_ID_X);
-        assertThat(shoppingList).isNull();
+        shoppingListService.getShoppingList(SHOPPING_LIST_ID_X, USER_ID_1);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void getNonExistingUserShoppingList() {
+        shoppingListService.getShoppingList(SHOPPING_LIST_ID_1, USER_ID_X);
     }
 
     @Test
     public void getAllShoppingLists() {
-        List<ShoppingListResource> allShoppingLists = shoppingListService.getAllShoppingLists();
+        List<ShoppingListResource> allShoppingLists = shoppingListService.getAllShoppingLists(USER_ID_1);
         assertThat(allShoppingLists).hasSize(2);
         assertThat(allShoppingLists.get(0).getShoppingListId()).isEqualTo(SHOPPING_LIST_ID_1);
         assertThat(allShoppingLists.get(0).getName()).isEqualTo(SHOPPING_LIST_NAME_1);
@@ -132,5 +165,11 @@ public class ShoppingListServiceTest {
         assertThat(allShoppingLists.get(1).getShoppingListId()).isEqualTo(SHOPPING_LIST_ID_2);
         assertThat(allShoppingLists.get(1).getName()).isEqualTo(SHOPPING_LIST_NAME_2);
         assertThat(allShoppingLists.get(1).getIngredients()).containsExactlyInAnyOrder("Tequila", "Blue Curacao", "Lime juice", "Salt", "Triple sec");
+    }
+
+    @Test
+    public void getAllShoppingListsNonExistingUser() {
+        List<ShoppingListResource> allShoppingLists = shoppingListService.getAllShoppingLists(USER_ID_X);
+        assertThat(allShoppingLists).isEmpty();
     }
 }
