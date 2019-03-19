@@ -106,6 +106,9 @@ public class ShopUserService {
 
     public String loginUser(String email, String password) {
         ShopUserEntity shopUserEntity = shopUserRepository.findByEmail(email).orElseThrow(() -> INVALID_VERIFICATION_ATTEMPT);
+        if (!shopUserEntity.isVerified()) {
+            throw new UnauthorizedException("Please verify your account first...");
+        }
         if (!securityManager.getPasswordEncoder().matches(password, shopUserEntity.getPassword())) {
             throw INVALID_VERIFICATION_ATTEMPT;
         }
@@ -114,7 +117,7 @@ public class ShopUserService {
 
     private boolean isValid(VerificationRequestEntity verificationRequestEntity, String verificationCode) {
         Date createdDate = verificationRequestEntity.getCreatedDate();
-        long timeExpired = ChronoUnit.MINUTES.between(LocalDateTime.now(), LocalDateTime.ofInstant(createdDate.toInstant(), TimeZone.getDefault().toZoneId()));
+        long timeExpired = ChronoUnit.MINUTES.between(LocalDateTime.ofInstant(createdDate.toInstant(), TimeZone.getDefault().toZoneId()), LocalDateTime.now());
         return verificationRequestEntity.getValidity() >= timeExpired && verificationRequestEntity.getVerificationCode().equals(verificationCode);
     }
 }
