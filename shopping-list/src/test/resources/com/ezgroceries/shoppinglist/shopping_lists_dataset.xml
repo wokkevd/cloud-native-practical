@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+    <!--USERS-->
+    <shop_user id="uuid'd7e711df-c0fb-49d0-86bd-b2472cdad4ca'"
+               first_name="Nick" last_name="The Kock" email="nick.dekock@cronos.be"
+               password="$2a$10$JZLsf3txmN6d5Snbybyqz.08pmFIEZ1YJWvkzIut.4T/56htmvDR6" verified="true"/>
+
+    <shop_user id="uuid'e37f50c2-84ce-4fff-9621-be0a3e552ad8'"
+               first_name="Bert" last_name="Ofgodsgarden" email="bert@bacharach.be"
+               password="$2a$10$fL/nDKm.0v036K7hJOCFOuPxvoff3lSVH15Tktt9rfh1IQGO4.fTW" verified="false"/>
+
+    <!--SHOPPING LISTS-->
+    <shopping_list id="uuid'1c6c2cb1-8f5e-442d-b79c-7205b689e2f8'"
+                   name="Nick's birthday" user_id="uuid'd7e711df-c0fb-49d0-86bd-b2472cdad4ca'"/>
+
+    <shopping_list id="uuid'233fc867-ed41-4850-9ae6-3cf91cced05f'"
+                   name="Bert's bris" user_id="uuid'e37f50c2-84ce-4fff-9621-be0a3e552ad8'"/>
+
+    <!--COCKTAILS-->
+    <cocktail id="uuid'a1fd2e4e-4f49-5d7c-adce-37dd0d8395e7'"
+              id_drink="123456" name="Margerita" glass="Cocktail Glass"
+              instructions="Rub the rim of the glass with the lime slice to make the salt stick to it. Take care to moisten.."
+              url="https://www.thecocktaildb.com/images/media/drink/wpxpvu1439905379.jpg" ingredients="Tequila,Triple sec,Lime juice,Salt"/>
+
+    <cocktail id="uuid'0eb9f706-964f-5089-a4a4-38d0cbba61f9'"
+              id_drink="654321" name="Blue Margerita" glass="Cocktail Glass"
+              instructions="Rub rim of cocktail glass with lime juice. Dip rim in coarse salt.."
+              url="https://www.thecocktaildb.com/images/media/drink/qtvvyq1439905913.jpg" ingredients="Tequila,Blue Curacao,Lime juice,Salt"/>
+
+    <!--LINKS-->
+    <cocktail_shopping_list cocktail_id="uuid'a1fd2e4e-4f49-5d7c-adce-37dd0d8395e7'"
+                            shopping_list_id="uuid'1c6c2cb1-8f5e-442d-b79c-7205b689e2f8'"/>
+
+    <cocktail_shopping_list cocktail_id="uuid'0eb9f706-964f-5089-a4a4-38d0cbba61f9'"
+                            shopping_list_id="uuid'1c6c2cb1-8f5e-442d-b79c-7205b689e2f8'"/>
+
+</dataset>

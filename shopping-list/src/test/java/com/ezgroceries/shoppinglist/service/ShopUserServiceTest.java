@@ -169,6 +169,11 @@ public class ShopUserServiceTest {
     }
 
     @Test(expected = UnauthorizedException.class)
+    public void loginUnverifiedUser() {
+        shopUserService.loginUser(EMAIL, PASSWORD);
+    }
+
+    @Test(expected = UnauthorizedException.class)
     public void loginNonExistingUser() {
         when(shopUserRepository.findById(USER_ID)).thenReturn(Optional.empty());
         shopUserService.loginUser(EMAIL, PASSWORD);

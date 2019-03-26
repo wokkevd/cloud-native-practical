@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+    <!--USERS-->
+    <shop_user id="uuid'd7e711df-c0fb-49d0-86bd-b2472cdad4ca'"
+               first_name="Nick" last_name="The Kock" email="nick.dekock@cronos.be"
+               password="$2a$10$JZLsf3txmN6d5Snbybyqz.08pmFIEZ1YJWvkzIut.4T/56htmvDR6" verified="true"/>
+
+    <shop_user id="uuid'e37f50c2-84ce-4fff-9621-be0a3e552ad8'"
+               first_name="Bert" last_name="Ofgodsgarden" email="bert@bacharach.be"
+               password="$2a$10$fL/nDKm.0v036K7hJOCFOuPxvoff3lSVH15Tktt9rfh1IQGO4.fTW" verified="false"/>
+
+    <!--VERIFICATION REQUESTS-->
+    <verification_request id="uuid'21b413a9-46f3-41ea-94a9-06b867675bcf'" user_id="uuid'd7e711df-c0fb-49d0-86bd-b2472cdad4ca'"
+               verification_code="100001" validity="30" created_date="2018-01-22 13:18:33.127"/>
+
+    <verification_request id="uuid'9b8854f2-ee24-428e-bd64-37747965b6a9'" user_id="uuid'e37f50c2-84ce-4fff-9621-be0a3e552ad8'"
+               verification_code="999999" validity="30" created_date="2050-01-22 13:18:33.127"/>
+</dataset>
+
+
