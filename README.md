@@ -1,4 +1,4 @@
-# Cloud Native Practical
+# The Awesome Cloud Native Practical
 
 Workshop that combines some cloud native theoretical and practical modules. Focused on a Spring Boot application.
 
