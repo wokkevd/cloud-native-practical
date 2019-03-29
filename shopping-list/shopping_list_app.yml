@@ -49,9 +49,10 @@ spec:
       name: shopping-list-app:latest
   source:
     git:
-      ref: master
+      ref: development
       uri: https://github.com/wokkevd/cloud-native-practical.git
     type: Git
+    contextDir: shopping-list
   strategy:
     type: Docker
   triggers:
