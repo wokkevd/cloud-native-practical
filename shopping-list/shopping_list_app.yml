@@ -83,11 +83,6 @@ spec:
     spec:
       containers:
         - env:
-            - name: SHOPPING_LIST_SECRETS_POSTGRES_URL
-              valueFrom:
-                secretKeyRef:
-                  name: postgres
-                  key: url
             - name: SHOPPING_LIST_SECRETS_POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -100,7 +95,7 @@ spec:
                   key: password
             - name: SHOPPING_LIST_CONFIG_COCKTAILDB_URL
               valueFrom:
-                secretKeyRef:
+                configMapKeyRef:
                   name: cocktaildb
                   key: url
           name: shopping-list-app
