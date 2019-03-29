@@ -12,6 +12,7 @@ import java.util.UUID;
 public class ShoppingListResource {
 
     private final UUID shoppingListId;
+
     private String name;
     private List<String> ingredients = new ArrayList<>();
 

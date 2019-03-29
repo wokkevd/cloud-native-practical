@@ -3,7 +3,7 @@ package com.ezgroceries.shoppinglist.service;
 import com.ezgroceries.shoppinglist.contract.cocktaildb.CocktailDBDrinkResource;
 import com.ezgroceries.shoppinglist.contract.shoppinglist.CocktailResource;
 import com.ezgroceries.shoppinglist.domain.CocktailEntity;
-import com.ezgroceries.shoppinglist.exceptions.NotFoundException;
+import com.ezgroceries.shoppinglist.exception.NotFoundException;
 import com.ezgroceries.shoppinglist.factory.CocktailEntityFactory;
 import com.ezgroceries.shoppinglist.factory.CocktailResourceFactory;
 import com.ezgroceries.shoppinglist.repository.CocktailRepository;

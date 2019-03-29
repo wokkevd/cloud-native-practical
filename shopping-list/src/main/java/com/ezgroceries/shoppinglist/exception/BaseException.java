@@ -1,4 +1,4 @@
-package com.ezgroceries.shoppinglist.exceptions;
+package com.ezgroceries.shoppinglist.exception;
 
 import lombok.Getter;
 

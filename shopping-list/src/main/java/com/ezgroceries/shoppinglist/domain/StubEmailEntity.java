@@ -24,8 +24,11 @@ import java.time.LocalDateTime;
 public class StubEmailEntity extends BaseEntity {
 
     private String emailText;
+
     private String subject;
+
     private String toAddress;
+
     @CreatedDate
     private LocalDateTime createdDate;
 }

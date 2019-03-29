@@ -1,4 +1,4 @@
-package com.ezgroceries.shoppinglist.domain;
+package com.ezgroceries.shoppinglist.util;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;

@@ -16,11 +16,17 @@ import java.util.UUID;
 public class CocktailResource {
 
     private UUID id;
+
     private String cocktailId;
+
     private String name;
+
     private String glass;
+
     private String instructions;
+
     private String image;
+
     @Builder.Default
     private List<String> ingredients = new ArrayList<>();
 }

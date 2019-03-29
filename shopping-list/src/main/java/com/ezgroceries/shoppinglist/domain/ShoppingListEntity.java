@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -24,7 +25,7 @@ public class ShoppingListEntity extends BaseEntity {
 
     private String name;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "cocktail_shopping_list", joinColumns = @JoinColumn(name = "shopping_list_id", referencedColumnName = "id"), inverseJoinColumns =
     @JoinColumn(name = "cocktail_id", referencedColumnName = "id"))
     private Set<CocktailEntity> cocktails = new HashSet<>();
