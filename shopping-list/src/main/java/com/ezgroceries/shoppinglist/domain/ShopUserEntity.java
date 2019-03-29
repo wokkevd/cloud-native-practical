@@ -22,9 +22,13 @@ import java.util.List;
 public class ShopUserEntity extends BaseEntity {
 
     private String firstName;
+
     private String lastName;
+
     private String email;
+
     private String password;
+
     private boolean verified;
 
     @OneToMany(mappedBy = "user")

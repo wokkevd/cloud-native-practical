@@ -25,8 +25,11 @@ import java.util.UUID;
 public class VerificationRequestEntity extends BaseEntity {
 
     private UUID userId;
+
     private String verificationCode;
+
     private Long validity;
+
     @CreatedDate
     private Date createdDate;
 }

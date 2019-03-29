@@ -1,6 +1,6 @@
 package com.ezgroceries.shoppinglist.security;
 
-import com.ezgroceries.shoppinglist.exceptions.UnauthorizedException;
+import com.ezgroceries.shoppinglist.exception.UnauthorizedException;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;

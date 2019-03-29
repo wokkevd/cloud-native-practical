@@ -1,7 +1,7 @@
 package com.ezgroceries.shoppinglist.controller;
 
 import com.ezgroceries.shoppinglist.contract.shoppinglist.ShoppingListResource;
-import com.ezgroceries.shoppinglist.exceptions.NotFoundException;
+import com.ezgroceries.shoppinglist.exception.NotFoundException;
 import com.ezgroceries.shoppinglist.security.SecurityManager;
 import com.ezgroceries.shoppinglist.service.ShoppingListService;
 import com.fasterxml.jackson.databind.ObjectMapper;

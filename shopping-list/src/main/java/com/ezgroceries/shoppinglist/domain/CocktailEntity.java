@@ -1,5 +1,6 @@
 package com.ezgroceries.shoppinglist.domain;
 
+import com.ezgroceries.shoppinglist.util.StringListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,10 +25,15 @@ public class CocktailEntity extends BaseEntity {
 
     @Column(name = "ID_DRINK")
     private String drinkId;
+
     private String name;
+
     private String glass;
+
     private String url;
+
     private String instructions;
+
     @Convert(converter = StringListConverter.class)
     @Builder.Default
     private List<String> ingredients = new ArrayList<>();

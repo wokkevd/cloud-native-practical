@@ -15,6 +15,7 @@ import java.util.Date;
 @Component
 public class SecurityManager {
 
+    //TODO move to openshift
     private static final String SECRET_KEY = "myVerySecretSecret";
     private static final String ISSUER = "ShoppingListApp";
     private static final long EXPIRATION = 900000; //15 minutes
