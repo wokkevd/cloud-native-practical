@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -15,15 +16,22 @@ import java.util.Date;
 @Component
 public class SecurityManager {
 
-    //TODO move to openshift
-    private static final String SECRET_KEY = "myVerySecretSecret";
-    private static final String ISSUER = "ShoppingListApp";
-    private static final long EXPIRATION = 900000; //15 minutes
+    @Value("${security.key}")
+    private String SECRET_KEY;
+
+    @Value("${security.issuer}")
+    private String ISSUER;
+
+    @Value("${security.expiration}")
+    private long EXPIRATION;
+
+    @Value("${security.signature.algorithm}")
+    private String SIGNATURE;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public String createJWT(String userId) {
-        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.forName(SIGNATURE);
 
         byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(SECRET_KEY);
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
