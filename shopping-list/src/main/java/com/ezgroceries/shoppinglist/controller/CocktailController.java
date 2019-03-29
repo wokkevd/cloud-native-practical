@@ -19,21 +19,15 @@ import java.util.UUID;
 @RequestMapping(value = "/cocktails", produces = "application/json")
 public class CocktailController {
 
-    private final CocktailDBClient cocktailDBClient;
     private final CocktailService cocktailService;
 
-    public CocktailController(CocktailDBClient cocktailDBClient, CocktailService cocktailService) {
-        this.cocktailDBClient = cocktailDBClient;
+    public CocktailController(CocktailService cocktailService) {
         this.cocktailService = cocktailService;
     }
 
     @GetMapping
     public List<CocktailResource> getCocktails(@RequestParam String search) {
-        ResponseEntity<CocktailDBResponseResource> cocktailResponse = cocktailDBClient.getCocktailBySearchTerm(search);
-        if (cocktailResponse != null && cocktailResponse.getBody() != null && cocktailResponse.getBody().getDrinks() != null) {
-            return cocktailService.persistCocktails(cocktailResponse.getBody().getDrinks());
-        }
-        return new ArrayList<>();
+        return cocktailService.getCocktailBySearchTerm(search);
     }
 
     @GetMapping("/{id}")

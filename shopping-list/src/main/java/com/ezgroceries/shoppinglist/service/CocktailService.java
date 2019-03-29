@@ -1,6 +1,7 @@
 package com.ezgroceries.shoppinglist.service;
 
 import com.ezgroceries.shoppinglist.contract.cocktaildb.CocktailDBDrinkResource;
+import com.ezgroceries.shoppinglist.contract.cocktaildb.CocktailDBResponseResource;
 import com.ezgroceries.shoppinglist.contract.shoppinglist.CocktailResource;
 import com.ezgroceries.shoppinglist.domain.CocktailEntity;
 import com.ezgroceries.shoppinglist.exception.NotFoundException;
@@ -8,8 +9,10 @@ import com.ezgroceries.shoppinglist.factory.CocktailEntityFactory;
 import com.ezgroceries.shoppinglist.factory.CocktailResourceFactory;
 import com.ezgroceries.shoppinglist.repository.CocktailRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,11 +26,14 @@ public class CocktailService {
     private final CocktailRepository cocktailRepository;
     private final CocktailResourceFactory cocktailResourceFactory;
     private final CocktailEntityFactory cocktailEntityFactory;
+    private final CocktailDBService cocktailDBService;
 
-    public CocktailService(CocktailRepository cocktailRepository, CocktailResourceFactory cocktailResourceFactory, CocktailEntityFactory cocktailEntityFactory) {
+    public CocktailService(CocktailRepository cocktailRepository, CocktailResourceFactory cocktailResourceFactory,
+                           CocktailEntityFactory cocktailEntityFactory, CocktailDBService cocktailDBService) {
         this.cocktailRepository = cocktailRepository;
         this.cocktailResourceFactory = cocktailResourceFactory;
         this.cocktailEntityFactory = cocktailEntityFactory;
+        this.cocktailDBService = cocktailDBService;
     }
 
     public List<CocktailResource> persistCocktails(List<CocktailDBDrinkResource> drinks) {
@@ -49,5 +55,13 @@ public class CocktailService {
                     log.debug("Persisting new cocktail [" + drinkResource.getStrDrink() + "]");
                     return cocktailRepository.save(cocktailEntityFactory.create(drinkResource));
                 });
+    }
+
+    public List<CocktailResource> getCocktailBySearchTerm(String search) {
+        ResponseEntity<CocktailDBResponseResource> cocktailResponse = cocktailDBService.getCocktailBySearchTerm(search);
+        if (cocktailResponse != null && cocktailResponse.getBody() != null && cocktailResponse.getBody().getDrinks() != null) {
+            return persistCocktails(cocktailResponse.getBody().getDrinks());
+        }
+        return new ArrayList<>();
     }
 }
