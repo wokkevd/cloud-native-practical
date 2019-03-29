@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+    <!--EMAILS-->
+    <stub_email id="uuid'21b413a9-46f3-41ea-94a9-06b867675bcf'" subject="User verification"
+                email_text="100001" to_address="nick.dekock@cronos.be" created_date="2018-01-22 13:18:33.127"/>
+
+    <stub_email id="uuid'9b8854f2-ee24-428e-bd64-37747965b6a9'" user_id="User verification"
+                email_text="999999" to_address="bert@bacharach.be" created_date="2050-01-22 13:18:33.127"/>
+</dataset>
+
+

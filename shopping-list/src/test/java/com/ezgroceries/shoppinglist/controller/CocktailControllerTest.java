@@ -5,6 +5,7 @@ import com.ezgroceries.shoppinglist.contract.cocktaildb.CocktailDBDrinkResource;
 import com.ezgroceries.shoppinglist.contract.cocktaildb.CocktailDBResponseResource;
 import com.ezgroceries.shoppinglist.contract.shoppinglist.CocktailResource;
 import com.ezgroceries.shoppinglist.exceptions.NotFoundException;
+import com.ezgroceries.shoppinglist.security.SecurityManager;
 import com.ezgroceries.shoppinglist.service.CocktailService;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +55,8 @@ public class CocktailControllerTest {
     private CocktailDBClient cocktailDBClient;
     @MockBean
     private CocktailService cocktailService;
+    @MockBean
+    private SecurityManager securityTokenManager;
 
     private CocktailResource cocktailResource1;
     private CocktailResource cocktailResource2;

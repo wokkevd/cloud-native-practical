@@ -1,0 +1,8 @@
+create table VERIFICATION_REQUEST
+(
+  ID                UUID PRIMARY KEY,
+  USER_ID           UUID,
+  VERIFICATION_CODE TEXT,
+  VALIDITY          BIGINT,
+  CREATED_DATE      TIMESTAMP
+)

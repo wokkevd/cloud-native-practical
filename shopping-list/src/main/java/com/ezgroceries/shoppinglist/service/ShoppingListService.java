@@ -3,9 +3,11 @@ package com.ezgroceries.shoppinglist.service;
 import com.ezgroceries.shoppinglist.contract.shoppinglist.ShoppingListResource;
 import com.ezgroceries.shoppinglist.domain.CocktailEntity;
 import com.ezgroceries.shoppinglist.domain.ShoppingListEntity;
+import com.ezgroceries.shoppinglist.exceptions.BadRequestException;
 import com.ezgroceries.shoppinglist.exceptions.NotFoundException;
 import com.ezgroceries.shoppinglist.factory.ShoppingListResourceFactory;
 import com.ezgroceries.shoppinglist.repository.CocktailRepository;
+import com.ezgroceries.shoppinglist.repository.ShopUserRepository;
 import com.ezgroceries.shoppinglist.repository.ShoppingListRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,37 +19,43 @@ import java.util.stream.Collectors;
 @Service
 public class ShoppingListService {
 
-    private static final String NOT_FOUND_MESSAGE = "Shopping list with id %s not found";
+    private static final String NOT_FOUND_MESSAGE = "Shopping list with id %s for user %s not found";
+    private static final String BAD_REQUEST_MESSAGE = "Unable to create shopping list.";
 
     private final ShoppingListRepository shoppingListRepository;
     private final CocktailRepository cocktailRepository;
+    private final ShopUserRepository shopUserRepository;
     private final ShoppingListResourceFactory shoppingListResourceFactory;
 
-    public ShoppingListService(ShoppingListRepository shoppingListRepository, CocktailRepository cocktailRepository, ShoppingListResourceFactory shoppingListResourceFactory) {
+    public ShoppingListService(ShoppingListRepository shoppingListRepository, CocktailRepository cocktailRepository, ShopUserRepository shopUserRepository, ShoppingListResourceFactory shoppingListResourceFactory) {
         this.shoppingListRepository = shoppingListRepository;
         this.cocktailRepository = cocktailRepository;
+        this.shopUserRepository = shopUserRepository;
         this.shoppingListResourceFactory = shoppingListResourceFactory;
     }
 
-    public ShoppingListResource createShoppingList(String name) {
+    public ShoppingListResource createShoppingList(String name, UUID userId) {
         ShoppingListEntity shoppingListEntity = new ShoppingListEntity(name);
+        shoppingListEntity.setUser(shopUserRepository.findById(userId).orElseThrow(() -> new BadRequestException(BAD_REQUEST_MESSAGE)));
         return shoppingListResourceFactory.create(shoppingListRepository.save(shoppingListEntity));
     }
 
-    public List<UUID> addCocktails(UUID shoppingListId, List<UUID> cocktailIds) {
-        return shoppingListRepository.findById(shoppingListId)
-                .map(shoppingListEntity -> addAvailableCocktailsToList(shoppingListEntity, cocktailIds))
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE, shoppingListId.toString()));
+    public List<UUID> addCocktails(UUID shoppingListId, UUID userId, List<UUID> cocktailIds) {
+        ShoppingListEntity shoppingList = getShoppingListEntity(shoppingListId, userId);
+        return addAvailableCocktailsToList(shoppingList, cocktailIds);
     }
 
-    public ShoppingListResource getShoppingList(UUID shoppingListId) {
-        return shoppingListRepository.findById(shoppingListId)
-                .map(shoppingListResourceFactory::create)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE, shoppingListId.toString()));
+    public ShoppingListResource getShoppingList(UUID shoppingListId, UUID userId) {
+        return shoppingListResourceFactory.create(getShoppingListEntity(shoppingListId, userId));
     }
 
-    public List<ShoppingListResource> getAllShoppingLists() {
-        return shoppingListResourceFactory.create(shoppingListRepository.findAll());
+    public List<ShoppingListResource> getAllShoppingLists(UUID userId) {
+        return shoppingListResourceFactory.create(shoppingListRepository.findByUserId(userId));
+    }
+
+    private ShoppingListEntity getShoppingListEntity(UUID shoppingListId, UUID userId) {
+        return shoppingListRepository.findByIdAndUserId(shoppingListId, userId)
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_MESSAGE, shoppingListId.toString(), userId.toString()));
     }
 
     private List<UUID> addAvailableCocktailsToList(ShoppingListEntity shoppingListEntity, List<UUID> cocktailIds) {

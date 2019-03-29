@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <dataset>
+    <!--COCKTAILS-->
     <cocktail id="uuid'a1fd2e4e-4f49-5d7c-adce-37dd0d8395e7'"
               id_drink="123456" name="Margerita" glass="Cocktail Glass"
               instructions="Rub the rim of the glass with the lime slice to make the salt stick to it. Take care to moisten.."
